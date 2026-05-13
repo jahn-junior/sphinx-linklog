@@ -33,16 +33,19 @@ from sphinx_linklog.models import LinkModel
 
 
 class HyperlinkEdgeBuilder(CheckExternalLinksBuilder):
+    """Builder that will build the list of edges."""
+
     name = "linklog"
 
     def init(self) -> None:
+        """Start building."""
         self.broken_hyperlinks = 0
         self.timed_out_hyperlinks = 0
         self.hyperlinks: list[tuple[Hyperlink, str, str]] = []
 
     def finish(self) -> None:
+        """Finish building and write output."""
         output_edges = self.outdir / "output_edges.json"
-        output_data = self.outdir / "output_data.json"
 
         adapter = TypeAdapter(list[LinkModel])
         hyperlinks_model = adapter.validate_python(
@@ -57,17 +60,16 @@ class HyperlinkEdgeBuilder(CheckExternalLinksBuilder):
             ]
         )
         with (
-            open(output_edges, "w", encoding="utf-8") as outfile,
-            open(output_data, "w", encoding="utf-8") as outdata,
+            output_edges.open() as outfile,
         ):
             json.dump(
                 [link.model_dump(mode="json") for link in hyperlinks_model], outfile
             )
-            # outfile.write(repr(hyperlinks_model))
-            outdata.write(repr(self.hyperlinks))
 
 
 class HyperlinkEdgeCollector(HyperlinkCollector):
+    """Link collector."""
+
     builders = ("linklog",)
 
     @override
@@ -93,7 +95,7 @@ class HyperlinkEdgeCollector(HyperlinkCollector):
 
         try:
             source = node.parent.parent.astext()
-        except Exception:
+        except Exception:  # noqa: BLE001
             source = node.astext()
 
         hyperlinks.append(
