@@ -9,8 +9,8 @@ import click
 
 from sphinx_linklog.models import LinkModel, LinkModelAdapter
 
-DIRECTORY = Path(__file__).parent.parent / "example"
-OUTPUT_DIRECTORY = Path(__file__).parent.parent / "output"
+DIRECTORY = Path(__file__).parent.parent / "example-output"
+OUTPUT_DIRECTORY = Path(__file__).parent.parent / "output-final"
 
 ALL_LINKS: dict[str, list[LinkModel]] = {}
 
@@ -50,7 +50,8 @@ def aggregate(input_dir: Path, output_dir: Path) -> None:
                 link.model_dump(mode="json")
                 for link_list in ALL_LINKS.values()
                 for link in link_list
-            ]
-        )
+            ],
+            newline="\n",
+        ),
     )
-    _ = output_nodes_file.write_text(json.dumps(list(ALL_LINKS)))
+    _ = output_nodes_file.write_text(json.dumps(list(ALL_LINKS), newline="\n"))
