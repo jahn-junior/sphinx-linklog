@@ -16,8 +16,95 @@
 
 """Contains the extension's core builders."""
 
-from sphinx.builders.linkcheck import CheckExternalLinksBuilder
+import json
+from typing import cast
+
+from docutils import nodes
+from pydantic import TypeAdapter
+from sphinx.builders.linkcheck import (
+    CheckExternalLinksBuilder,
+    Hyperlink,
+    HyperlinkCollector,
+)
+from sphinx.util.nodes import get_node_line, get_node_source
+from typing_extensions import override
+
+from sphinx_linklog.models import LinkModel
 
 
+class HyperlinkEdgeBuilder(CheckExternalLinksBuilder):
+    name = "linklog"
+
+    def init(self) -> None:
+        self.broken_hyperlinks = 0
+        self.timed_out_hyperlinks = 0
+        self.hyperlinks: list[tuple[Hyperlink, str, str]] = []
+
+    def finish(self) -> None:
+        output_edges = self.outdir / "output_edges.json"
+        output_data = self.outdir / "output_data.json"
+
+        adapter = TypeAdapter(list[LinkModel])
+        hyperlinks_model = adapter.validate_python(
+            [
+                {
+                    "target": hyperlink[0].uri,
+                    "source": hyperlink[0].docname,
+                    "context": hyperlink[1],
+                    "project": hyperlink[2],
+                }
+                for hyperlink in self.hyperlinks
+            ]
+        )
+        with (
+            open(output_edges, "w", encoding="utf-8") as outfile,
+            open(output_data, "w", encoding="utf-8") as outdata,
+        ):
+            json.dump(
+                [link.model_dump(mode="json") for link in hyperlinks_model], outfile
+            )
+            # outfile.write(repr(hyperlinks_model))
+            outdata.write(repr(self.hyperlinks))
 
 
+class HyperlinkEdgeCollector(HyperlinkCollector):
+    builders = ("linklog",)
+
+    @override
+    def _add_uri(self, uri: str, node: nodes.Element) -> None:
+        """Registers a node's URI into a builder's collection of hyperlinks.
+
+        Provides the ability to register a URI value determined from a node
+        into the linkcheck's builder. URI's processed through this call can
+        be manipulated through a ``linkcheck-process-uri`` event before the
+        builder attempts to validate.
+
+        :param uri: URI to add
+        :param node: A node class where the URI was found
+        """
+        builder = cast("HyperlinkEdgeBuilder", self.app.builder)
+        hyperlinks = builder.hyperlinks
+        docname = self.env.docname
+
+        try:
+            lineno = get_node_line(node)
+        except ValueError:
+            lineno = -1
+
+        try:
+            source = node.parent.parent.astext()
+        except Exception:
+            source = node.astext()
+
+        hyperlinks.append(
+            (
+                Hyperlink(
+                    uri,
+                    f"{self.config.website_domain}{docname}",
+                    self.env.doc2path(docname),
+                    lineno,
+                ),
+                source,
+                self.config.project.lower().replace(" ", "-"),
+            )
+        )

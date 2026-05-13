@@ -23,6 +23,8 @@ sys.path.insert(0, str(project_dir.absolute()))
 project = "Mockumentation"
 author = "Tester"
 
+website_domain = "https://example.com/"
+
 html_title = project
 html_theme = "furo"
 

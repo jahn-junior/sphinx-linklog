@@ -18,7 +18,7 @@
 
 from sphinx.util.typing import ExtensionMetadata
 from sphinx.application import Sphinx
-from .sphinx_linklog.builder import LinklogBuilder
+from sphinx_linklog.builder import HyperlinkEdgeBuilder, HyperlinkEdgeCollector
 
 try:
     from ._version import __version__
@@ -37,6 +37,10 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     :returns: ExtensionMetadata
     """
     # Add builder
+    app.add_builder(HyperlinkEdgeBuilder)
+    app.add_post_transform(HyperlinkEdgeCollector)
+
+    app.add_config_value("website_domain", "/", "", types=frozenset({str}))
 
     return {
         "version": __version__,

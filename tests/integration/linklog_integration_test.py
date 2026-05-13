@@ -37,7 +37,7 @@ def example_project(request) -> Path:
 def test_hello_integration(example_project):
     build_dir = example_project / "_build"
     subprocess.check_call(
-        ["sphinx-build", "-b", "html", "-W", example_project, build_dir],
+        ["sphinx-build", "-b", "linklog", "-W", example_project, build_dir],
     )
 
     index = build_dir / "index.html"
@@ -46,12 +46,5 @@ def test_hello_integration(example_project):
     shutil.copytree(
         build_dir, build_dir.parents[1] / ".test_output", dirs_exist_ok=True
     )
-    soup = bs4.BeautifulSoup(index.read_text(), features="lxml")
 
     shutil.rmtree(example_project)  # Delete copied source
-
-    ext_text = soup.find("p")
-    if ext_text:
-        assert getattr(ext_text, "text", None) == "Hello, world!"
-    else:
-        pytest.fail("Directive output not found in document.")
