@@ -51,7 +51,7 @@ def aggregate(input_dir: Path, output_dir: Path) -> None:
                 for link_list in ALL_LINKS.values()
                 for link in link_list
             ],
-            newline="\n",
         ),
+        newline="\n",
     )
-    _ = output_nodes_file.write_text(json.dumps(list(ALL_LINKS), newline="\n"))
+    _ = output_nodes_file.write_text(json.dumps(list(ALL_LINKS)), newline="\n")
