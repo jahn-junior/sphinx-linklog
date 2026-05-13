@@ -26,7 +26,7 @@ from sphinx.builders.linkcheck import (
     Hyperlink,
     HyperlinkCollector,
 )
-from sphinx.util.nodes import get_node_line, get_node_source
+from sphinx.util.nodes import get_node_line
 from typing_extensions import override
 
 from sphinx_linklog.models import LinkModel
@@ -60,7 +60,7 @@ class HyperlinkEdgeBuilder(CheckExternalLinksBuilder):
             ]
         )
         with (
-            output_edges.open() as outfile,
+            output_edges.open(mode="w") as outfile,
         ):
             json.dump(
                 [link.model_dump(mode="json") for link in hyperlinks_model], outfile
@@ -97,6 +97,10 @@ class HyperlinkEdgeCollector(HyperlinkCollector):
             source = node.parent.parent.astext()
         except Exception:  # noqa: BLE001
             source = node.astext()
+
+        if node.get("internal"):
+            target_doc, _, _ = self.app.env.domaindata["std"]["labels"][uri.lstrip("#")]
+            uri = f"{self.config.website_domain}{target_doc}{uri}"
 
         hyperlinks.append(
             (
