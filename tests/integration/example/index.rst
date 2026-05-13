@@ -2,4 +2,4 @@
 Test doc
 ========
 
-.. hello:: world
+Add links here.

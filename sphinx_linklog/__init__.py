@@ -18,7 +18,7 @@
 
 from sphinx.util.typing import ExtensionMetadata
 from sphinx.application import Sphinx
-from .hello import HelloDirective
+from .sphinx_linklog.builder import LinklogBuilder
 
 try:
     from ._version import __version__
@@ -26,7 +26,7 @@ except ImportError:  # pragma: no cover
     from importlib.metadata import version, PackageNotFoundError
 
     try:
-        __version__ = version("hello_ext")
+        __version__ = version("sphinx_linklog")
     except PackageNotFoundError:
         __version__ = "dev"
 
@@ -36,7 +36,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
 
     :returns: ExtensionMetadata
     """
-    app.add_directive("hello", HelloDirective)
+    # Add builder
 
     return {
         "version": __version__,

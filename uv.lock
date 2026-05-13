@@ -306,7 +306,7 @@ wheels = [
 ]
 
 [[package]]
-name = "hello-ext"
+name = "sphinx-linklog"
 source = { editable = "." }
 dependencies = [
     { name = "docutils" },

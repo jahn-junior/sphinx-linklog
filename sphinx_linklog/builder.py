@@ -14,21 +14,10 @@
 # You should have received a copy of the GNU General Public License along with
 # this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Contains the extension's directive."""
+"""Contains the extension's core builders."""
 
-from docutils import nodes
-from sphinx.util.docutils import SphinxDirective
+from sphinx.builders.linkcheck import CheckExternalLinksBuilder
 
 
-class HelloDirective(SphinxDirective):
-    """A directive to say hello."""
 
-    required_arguments = 1
 
-    def run(self) -> list[nodes.Node]:
-        """Write a greeting.
-
-        :returns: list[nodes.Node]
-        """
-        paragraph_node = nodes.paragraph(text=f"Hello, {self.arguments[0]}!")
-        return [paragraph_node]
