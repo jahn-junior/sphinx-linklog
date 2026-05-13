@@ -1,6 +1,6 @@
 """Data model."""
 
-from pydantic import BaseModel, HttpUrl
+from pydantic import BaseModel, HttpUrl, TypeAdapter
 
 
 class LinkModel(BaseModel):
@@ -10,3 +10,6 @@ class LinkModel(BaseModel):
     target: HttpUrl
     context: str | None = None
     project: str
+
+
+LinkModelAdapter = TypeAdapter(list[LinkModel])
