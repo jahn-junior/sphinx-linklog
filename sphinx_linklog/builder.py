@@ -99,6 +99,8 @@ class HyperlinkEdgeCollector(HyperlinkCollector):
             source = node.astext()
 
         if node.get("internal"):
+            if uri.lstrip("#") not in self.app.env.domaindata["std"]["labels"]:
+                return
             target_doc, _, _ = self.app.env.domaindata["std"]["labels"][uri.lstrip("#")]
             uri = f"{self.config.website_domain}{target_doc}{uri}"
 
