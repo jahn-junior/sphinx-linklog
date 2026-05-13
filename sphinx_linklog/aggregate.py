@@ -42,8 +42,9 @@ def aggregate(input_dir: Path, output_dir: Path) -> None:
 
     logger.info(f"{ALL_LINKS=}")
 
-    output_file = output_dir / f"graph-{datetime.now(tz=timezone.utc)}.json"
-    _ = output_file.write_text(
+    output_edges_file = output_dir / f"graph-edges-{datetime.now(tz=timezone.utc)}.json"
+    output_nodes_file = output_dir / f"graph-nodes-{datetime.now(tz=timezone.utc)}.json"
+    _ = output_edges_file.write_text(
         json.dumps(
             [
                 link.model_dump(mode="json")
@@ -52,3 +53,4 @@ def aggregate(input_dir: Path, output_dir: Path) -> None:
             ]
         )
     )
+    _ = output_nodes_file.write_text(json.dumps(list(ALL_LINKS)))
